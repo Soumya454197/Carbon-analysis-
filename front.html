@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Carbon Analyzer</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#f0fdf4;color:#1a2e1a;min-height:100vh}
+.page{display:none;min-height:100vh}
+.page.active{display:block}
+
+/* NAV */
+nav{background:#fff;border-bottom:1px solid #e2f0e2;padding:0 2rem;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:0 1px 8px rgba(16,185,129,0.06)}
+.nav-logo{display:flex;align-items:center;gap:10px;cursor:pointer}
+.nav-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,#059669,#0284c7);border-radius:10px;display:flex;align-items:center;justify-content:center}
+.nav-logo-icon svg{width:20px;height:20px;fill:#fff}
+.nav-logo-text{font-size:16px;font-weight:700;background:linear-gradient(135deg,#059669,#0284c7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nav-links{display:flex;align-items:center;gap:8px}
+.nav-link{padding:8px 16px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;color:#374151;transition:all .2s;border:none;background:none}
+.nav-link:hover{background:#f0fdf4;color:#059669}
+.nav-link.active{background:#f0fdf4;color:#059669}
+.btn-primary{padding:9px 20px;background:linear-gradient(135deg,#059669,#0284c7);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+.btn-secondary{padding:9px 20px;background:#fff;color:#059669;border:1.5px solid #059669;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-secondary:hover{background:#f0fdf4}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#ecfdf5 0%,#eff6ff 50%,#f0fdf4 100%);padding:80px 2rem 60px;text-align:center}
+.hero h1{font-size:52px;font-weight:800;line-height:1.15;margin-bottom:20px;background:linear-gradient(135deg,#059669,#0284c7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:18px;color:#6b7280;max-width:600px;margin:0 auto 36px}
+.hero-btns{display:flex;gap:16px;justify-content:center;margin-bottom:60px}
+.hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:860px;margin:0 auto}
+.stat-card{background:#fff;border-radius:16px;padding:28px 24px;border:1px solid #e5f3e5;box-shadow:0 2px 12px rgba(16,185,129,0.06)}
+.stat-num{font-size:40px;font-weight:800;background:linear-gradient(135deg,#059669,#0284c7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
+.stat-label{font-size:14px;color:#6b7280;font-weight:500}
+
+/* FEATURES */
+.features-section{padding:72px 2rem;max-width:1100px;margin:0 auto}
+.section-title{font-size:36px;font-weight:800;text-align:center;color:#111827;margin-bottom:12px}
+.section-sub{font-size:16px;color:#6b7280;text-align:center;margin-bottom:48px}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.feat-card{background:#fff;border-radius:16px;padding:28px;border:1px solid #e5f3e5;transition:all .2s}
+.feat-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(16,185,129,0.12)}
+.feat-icon{width:48px;height:48px;background:linear-gradient(135deg,#059669,#0284c7);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.feat-icon svg{width:24px;height:24px;fill:#fff}
+.feat-card h3{font-size:17px;font-weight:700;color:#111827;margin-bottom:10px}
+.feat-card p{font-size:14px;color:#6b7280;line-height:1.6}
+
+/* CTA SECTION */
+.cta-section{background:linear-gradient(135deg,#059669,#0284c7);padding:72px 2rem;text-align:center}
+.cta-section h2{font-size:36px;font-weight:800;color:#fff;margin-bottom:14px}
+.cta-section p{font-size:16px;color:rgba(255,255,255,0.85);margin-bottom:36px}
+.btn-white{padding:14px 32px;background:#fff;color:#059669;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-white:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.15)}
+
+/* AUTH PAGE */
+.auth-page{min-height:100vh;background:linear-gradient(135deg,#ecfdf5,#eff6ff);display:flex;align-items:center;justify-content:center;padding:2rem}
+.auth-card{background:#fff;border-radius:20px;padding:40px;width:100%;max-width:440px;box-shadow:0 8px 40px rgba(16,185,129,0.12)}
+.auth-logo{text-align:center;margin-bottom:28px}
+.auth-logo .nav-logo-icon{width:52px;height:52px;margin:0 auto 12px;border-radius:14px}
+.auth-logo .nav-logo-icon svg{width:28px;height:28px}
+.auth-title{font-size:24px;font-weight:800;color:#111827;text-align:center;margin-bottom:6px}
+.auth-sub{font-size:14px;color:#6b7280;text-align:center;margin-bottom:28px}
+.auth-tabs{display:flex;background:#f3f4f6;border-radius:10px;padding:4px;margin-bottom:28px}
+.auth-tab{flex:1;padding:8px;border-radius:8px;text-align:center;font-size:14px;font-weight:600;cursor:pointer;color:#6b7280;transition:all .2s}
+.auth-tab.active{background:#fff;color:#059669;box-shadow:0 1px 4px rgba(0,0,0,0.1)}
+.form-group{margin-bottom:18px}
+.form-group label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px}
+.form-group input{width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111827;outline:none;transition:border-color .2s}
+.form-group input:focus{border-color:#059669}
+.form-group input::placeholder{color:#9ca3af}
+.auth-submit{width:100%;padding:13px;background:linear-gradient(135deg,#059669,#0284c7);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;transition:all .2s}
+.auth-submit:hover{opacity:.9}
+.auth-divider{text-align:center;color:#9ca3af;font-size:13px;margin:18px 0;position:relative}
+.auth-divider::before{content:'';position:absolute;top:50%;left:0;right:0;height:1px;background:#e5e7eb}
+.auth-divider span{background:#fff;padding:0 12px;position:relative}
+.social-btn{width:100%;padding:11px;background:#fff;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;color:#374151;transition:all .2s}
+.social-btn:hover{background:#f9fafb}
+.auth-switch{text-align:center;margin-top:20px;font-size:13px;color:#6b7280}
+.auth-switch a{color:#059669;font-weight:600;cursor:pointer;text-decoration:none}
+
+/* UPLOAD PAGE */
+.upload-page{padding:60px 2rem;max-width:900px;margin:0 auto}
+.upload-title{font-size:40px;font-weight:800;text-align:center;background:linear-gradient(135deg,#059669,#0284c7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px}
+.upload-sub{font-size:16px;color:#6b7280;text-align:center;margin-bottom:40px}
+.dropzone{border:2.5px dashed #34d399;border-radius:20px;padding:64px 40px;text-align:center;background:linear-gradient(135deg,rgba(236,253,245,0.7),rgba(239,246,255,0.7));cursor:pointer;transition:all .3s;position:relative;overflow:hidden}
+.dropzone.dragover{border-color:#059669;background:linear-gradient(135deg,rgba(209,250,229,0.9),rgba(219,234,254,0.9));transform:scale(1.01)}
+.dropzone.has-file{border-color:#059669;border-style:solid}
+.upload-icon{width:72px;height:72px;background:linear-gradient(135deg,#059669,#0284c7);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
+.upload-icon svg{width:32px;height:32px;fill:#fff}
+.dropzone h3{font-size:22px;font-weight:700;color:#111827;margin-bottom:8px}
+.dropzone p{font-size:14px;color:#6b7280;margin-bottom:24px}
+.file-info{font-size:12px;color:#9ca3af;margin-top:16px}
+.upload-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:36px}
+.upload-step{background:#fff;border-radius:14px;padding:20px;border:1px solid #e5f3e5;text-align:left}
+.step-badge{display:inline-block;background:linear-gradient(135deg,#ecfdf5,#eff6ff);color:#059669;border:1px solid #d1fae5;border-radius:8px;font-size:12px;font-weight:700;padding:3px 10px;margin-bottom:10px}
+.upload-step h4{font-size:14px;font-weight:700;color:#111827;margin-bottom:4px}
+.upload-step p{font-size:13px;color:#6b7280}
+
+/* PROGRESS */
+.progress-overlay{display:none;position:fixed;inset:0;background:rgba(255,255,255,0.95);z-index:300;flex-direction:column;align-items:center;justify-content:center;padding:2rem}
+.progress-overlay.show{display:flex}
+.progress-card{background:#fff;border-radius:20px;padding:48px 40px;max-width:500px;width:100%;text-align:center;box-shadow:0 8px 40px rgba(16,185,129,0.15);border:1px solid #e5f3e5}
+.progress-spinner{width:64px;height:64px;border:4px solid #e5f3e5;border-top:4px solid #059669;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 24px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.progress-title{font-size:22px;font-weight:800;color:#111827;margin-bottom:8px}
+.progress-stage{font-size:14px;color:#059669;font-weight:500;margin-bottom:24px}
+.progress-bar-wrap{background:#e5f3e5;border-radius:999px;height:10px;overflow:hidden;margin-bottom:20px}
+.progress-bar{height:100%;background:linear-gradient(90deg,#059669,#0284c7);border-radius:999px;transition:width .4s ease;width:0%}
+.progress-steps{display:flex;flex-direction:column;gap:10px;text-align:left}
+.prog-step{display:flex;align-items:center;gap:12px;font-size:13px}
+.prog-dot{width:20px;height:20px;border-radius:50%;border:2px solid #d1d5db;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .3s}
+.prog-dot.done{background:#059669;border-color:#059669}
+.prog-dot.done::after{content:'✓';color:#fff;font-size:10px;font-weight:700}
+.prog-dot.active{border-color:#059669;background:#ecfdf5;animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+
+/* DASHBOARD */
+.dash-page{padding:0}
+.dash-header{background:#fff;border-bottom:1px solid #e5f3e5;padding:24px 2rem}
+.dash-header h1{font-size:28px;font-weight:800;background:linear-gradient(135deg,#059669,#0284c7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px}
+.dash-header p{font-size:14px;color:#6b7280}
+.dash-body{padding:28px 2rem;max-width:1200px;margin:0 auto}
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:28px}
+.metric-card{background:#fff;border-radius:16px;padding:22px;border:1px solid #e5f3e5;position:relative;overflow:hidden}
+.metric-card.highlight{background:linear-gradient(135deg,#059669,#0284c7);border:none}
+.metric-label{font-size:13px;color:#6b7280;font-weight:500;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+.metric-card.highlight .metric-label{color:rgba(255,255,255,0.8)}
+.metric-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#ecfdf5}
+.metric-icon svg{width:16px;height:16px}
+.metric-card.highlight .metric-icon{background:rgba(255,255,255,0.2)}
+.metric-val{font-size:30px;font-weight:800;color:#111827;margin-bottom:6px}
+.metric-card.highlight .metric-val{color:#fff}
+.metric-change{font-size:12px;font-weight:500}
+.metric-change.up{color:#ef4444}
+.metric-change.down{color:#10b981}
+.metric-card.highlight .metric-change{color:rgba(255,255,255,0.85)}
+.metric-sub{font-size:11px;color:#9ca3af}
+.metric-card.highlight .metric-sub{color:rgba(255,255,255,0.7)}
+.charts-row{display:grid;grid-template-columns:1.4fr 1fr;gap:20px;margin-bottom:24px}
+.chart-card{background:#fff;border-radius:16px;padding:24px;border:1px solid #e5f3e5}
+.chart-title{font-size:16px;font-weight:700;color:#111827;margin-bottom:20px}
+.chart-wrap{position:relative}
+.trend-card{background:#fff;border-radius:16px;padding:24px;border:1px solid #e5f3e5;margin-bottom:24px}
+.trend-legend{display:flex;gap:20px;margin-bottom:16px}
+.leg-item{display:flex;align-items:center;gap:6px;font-size:13px;color:#6b7280}
+.leg-dot{width:10px;height:10px;border-radius:2px}
+
+/* TABLE */
+.table-card{background:#fff;border-radius:16px;padding:24px;border:1px solid #e5f3e5;margin-bottom:24px}
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{font-size:13px;font-weight:600;color:#374151;padding:10px 14px;border-bottom:2px solid #e5f3e5;text-align:left}
+.data-table th:not(:first-child){text-align:right}
+.data-table td{font-size:13px;color:#374151;padding:12px 14px;border-bottom:1px solid #f3f4f6}
+.data-table td:not(:first-child){text-align:right}
+.data-table tr:hover td{background:#f9fffe}
+.data-table tr:last-child td{border-bottom:none}
+
+/* HOTSPOTS */
+.hotspot-page{padding:28px 2rem;max-width:1100px;margin:0 auto}
+.page-header{margin-bottom:28px}
+.page-header h1{font-size:28px;font-weight:800;background:linear-gradient(135deg,#059669,#0284c7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px}
+.page-header p{font-size:14px;color:#6b7280}
+.hotspot-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:24px;margin-bottom:24px}
+.hotspot-list{display:flex;flex-direction:column;gap:14px}
+.hotspot-item{background:#fff;border-radius:14px;padding:18px 20px;border:1px solid #e5f3e5;display:flex;align-items:center;gap:16px;transition:all .2s}
+.hotspot-item:hover{box-shadow:0 4px 16px rgba(16,185,129,0.1)}
+.hotspot-rank{font-size:22px;font-weight:800;color:#d1d5db;min-width:28px}
+.hotspot-info{flex:1}
+.hotspot-info h4{font-size:15px;font-weight:700;color:#111827;margin-bottom:3px}
+.hotspot-info p{font-size:12px;color:#6b7280}
+.severity{font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px}
+.severity.critical{background:#fef2f2;color:#dc2626}
+.severity.high{background:#fff7ed;color:#d97706}
+.severity.medium{background:#fffbeb;color:#b45309}
+.hotspot-co2{font-size:15px;font-weight:700;color:#374151;min-width:70px;text-align:right}
+.recs-section{margin-top:24px}
+.rec-card{background:#fff;border-radius:14px;padding:20px;border:1px solid #e5f3e5;margin-bottom:14px}
+.rec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.rec-title{font-size:15px;font-weight:700;color:#111827}
+.rec-impact{font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px}
+.rec-impact.high{background:#d1fae5;color:#065f46}
+.rec-impact.medium{background:#dbeafe;color:#1e40af}
+.rec-meta{display:flex;gap:20px;font-size:12px;color:#6b7280}
+.rec-meta span{display:flex;align-items:center;gap:5px}
+.rec-desc{font-size:13px;color:#6b7280;margin-top:8px;line-height:1.5}
+
+/* COMPLIANCE */
+.compliance-page{padding:28px 2rem;max-width:1100px;margin:0 auto}
+.compliance-score{background:linear-gradient(135deg,#059669,#0284c7);border-radius:20px;padding:36px;display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.score-left h2{font-size:24px;font-weight:800;color:#fff;margin-bottom:6px}
+.score-left p{font-size:14px;color:rgba(255,255,255,0.8)}
+.score-circle{width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;flex-direction:column;align-items:center;justify-content:center;border:3px solid rgba(255,255,255,0.4)}
+.score-circle .score-num{font-size:30px;font-weight:800;color:#fff;line-height:1}
+.score-circle .score-label{font-size:11px;color:rgba(255,255,255,0.8)}
+.compliance-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:24px;margin-bottom:24px}
+.check-list{display:flex;flex-direction:column;gap:14px}
+.check-item{background:#fff;border-radius:14px;padding:18px 20px;border:1px solid #e5f3e5}
+.check-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.check-name{font-size:14px;font-weight:700;color:#111827}
+.status-badge{font-size:12px;font-weight:700;padding:4px 12px;border-radius:999px}
+.status-badge.pass{background:#d1fae5;color:#065f46}
+.status-badge.fail{background:#fef2f2;color:#dc2626}
+.check-prog-wrap{background:#e5f3e5;border-radius:999px;height:7px;overflow:hidden;margin-bottom:8px}
+.check-prog{height:100%;background:linear-gradient(90deg,#059669,#34d399);border-radius:999px}
+.check-meta{font-size:12px;color:#6b7280;display:flex;justify-content:space-between}
+.download-btn{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#059669,#0284c7);color:#fff;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:24px}
+.ai-recs-card{background:#fff;border-radius:16px;padding:24px;border:1px solid #e5f3e5}
+.ai-rec-item{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid #f3f4f6}
+.ai-rec-item:last-child{border-bottom:none;padding-bottom:0}
+.ai-rec-num{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#ecfdf5,#eff6ff);border:1px solid #d1fae5;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#059669;flex-shrink:0}
+.ai-rec-text h4{font-size:14px;font-weight:700;color:#111827;margin-bottom:4px}
+.ai-rec-text p{font-size:13px;color:#6b7280}
+
+/* FOOTER NAV */
+.bottom-nav{background:#fff;border-top:1px solid #e5f3e5;padding:0 2rem;height:56px;display:flex;align-items:center;justify-content:center;gap:8px}
+.bnav-btn{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;color:#6b7280;border:none;background:none;transition:all .2s}
+.bnav-btn:hover{background:#f0fdf4;color:#059669}
+.bnav-btn.active-page{background:#ecfdf5;color:#059669;font-weight:600}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:#111827;color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:500;z-index:500;transform:translateY(100px);opacity:0;transition:all .3s}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .hero h1{font-size:32px}
+  .hero-stats,.features-grid,.metrics-grid,.charts-row,.hotspot-grid,.compliance-grid{grid-template-columns:1fr}
+  .upload-steps{grid-template-columns:1fr}
+  nav .nav-links{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="main-nav" style="display:none">
+  <div class="nav-logo" onclick="showPage('landing')">
+    <div class="nav-logo-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg></div>
+    <span class="nav-logo-text">AI Carbon Analyzer</span>
+  </div>
+  <div class="nav-links">
+    <button class="nav-link" onclick="showPage('dashboard')">Dashboard</button>
+    <button class="nav-link" onclick="showPage('upload')">Upload</button>
+    <button class="nav-link" onclick="showPage('hotspots')">Hotspots</button>
+    <button class="nav-link" onclick="showPage('compliance')">Compliance</button>
+  </div>
+  <div style="display:flex;gap:10px">
+    <button class="btn-secondary" onclick="showPage('auth')">Log Out</button>
+  </div>
+</nav>
+
+<!-- LANDING PAGE -->
+<div class="page active" id="page-landing">
+  <nav style="background:#fff;border-bottom:1px solid #e2f0e2;padding:0 2rem;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200">
+    <div class="nav-logo">
+      <div class="nav-logo-icon"><svg viewBox="0 0 24 24" fill="white"><path d="M17 8C8 10 5.9 16.17 3.82 21h1.78l1-2.5A3.87 3.87 0 007 19c5 0 8-3 9-8l3 5 1-2-3-6z"/></svg></div>
+      <span class="nav-logo-text">AI Carbon Analyzer</span>
+    </div>
+    <div class="nav-links">
+      <button class="nav-link">Features</button>
+      <button class="nav-link">Pricing</button>
+      <button class="nav-link">About</button>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn-secondary" onclick="showPage('auth')">Sign In</button>
+      <button class="btn-primary" onclick="showPage('auth')">Get Started</button>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <h1>AI-Powered Carbon<br>Footprint Analysis</h1>
+    <p>Transform corporate financial statements into strategic sustainability insights with ML/NLP technology</p>
+    <div class="hero-btns">
+      <button class="btn-primary" style="padding:14px 32px;font-size:16px" onclick="showPage('auth')">Get Started Free</button>
+      <button class="btn-secondary" style="padding:14px 32px;font-size:16px">Watch Demo</button>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-card">
+        <div class="stat-num">98.5%</div>
+        <div class="stat-label">ML Accuracy Rate</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">10K+</div>
+        <div class="stat-label">Statements Analyzed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">45%</div>
+        <div class="stat-label">Avg. Emission Reduction</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="features-section">
+    <h2 class="section-title">Powerful Features</h2>
+    <p class="section-sub">End-to-end solution for corporate carbon footprint analysis</p>
+    <div class="features-grid">
+      <div class="feat-card">
+        <div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg></div>
+        <h3>AI-Powered Analysis</h3>
+        <p>Advanced NLP and machine learning models process financial statements to identify spending patterns and calculate precise emission factors.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.89 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg></div>
+        <h3>Smart Document Processing</h3>
+        <p>Upload financial statements in multiple formats. Our AI extracts and categorizes spending data with 98.5% accuracy across all document types.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg></div>
+        <h3>Real-Time Dashboards</h3>
+        <p>Interactive visualizations show CO₂e breakdowns by category, time period, and scope with drill-down capabilities and export options.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6h-6z"/></svg></div>
+        <h3>Hotspot Detection</h3>
+        <p>Identify top emission sources with actionable reduction recommendations powered by ML-driven insights and industry benchmarks.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg></div>
+        <h3>Compliance Reporting</h3>
+        <p>Automated compliance checks against SEBI/EPA limits with Pass/Fail status and downloadable reports for regulatory submissions.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></svg></div>
+        <h3>Strategic Insights</h3>
+        <p>Transform emissions data into strategic sustainability roadmaps with fiscal-environmental correlation analysis and ROI projections.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-section">
+    <h2>Ready to Transform Your Sustainability Strategy?</h2>
+    <p>Start analyzing your financial data for carbon insights today</p>
+    <button class="btn-white" onclick="showPage('auth')">Upload Financial Statement</button>
+  </div>
+</div>
+
+<!-- AUTH PAGE -->
+<div class="page" id="page-auth">
+  <div class="auth-page">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <div class="nav-logo-icon" style="width:52px;height:52px;margin:0 auto 12px;border-radius:14px;background:linear-gradient(135deg,#059669,#0284c7);display:flex;align-items:center;justify-content:center">
+          <svg viewBox="0 0 24 24" fill="white" style="width:28px;height:28px"><path d="M17 8C8 10 5.9 16.17 3.82 21h1.78l1-2.5A3.87 3.87 0 007 19c5 0 8-3 9-8l3 5 1-2-3-6z"/></svg>
+        </div>
+        <div class="nav-logo-text" style="font-size:18px;font-weight:800">AI Carbon Analyzer</div>
+      </div>
+      <div class="auth-tabs" id="auth-tabs">
+        <div class="auth-tab active" onclick="switchAuthTab('login')">Sign In</div>
+        <div class="auth-tab" onclick="switchAuthTab('signup')">Create Account</div>
+      </div>
+
+      <div id="login-form">
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" placeholder="you@company.com" id="login-email">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" placeholder="Enter your password" id="login-pw">
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-bottom:8px">
+          <a style="font-size:13px;color:#059669;cursor:pointer">Forgot password?</a>
+        </div>
+        <button class="auth-submit" onclick="doLogin()">Sign In</button>
+      </div>
+
+      <div id="signup-form" style="display:none">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" placeholder="John Smith" id="signup-name">
+        </div>
+        <div class="form-group">
+          <label>Work Email</label>
+          <input type="email" placeholder="you@company.com" id="signup-email">
+        </div>
+        <div class="form-group">
+          <label>Company Name</label>
+          <input type="text" placeholder="Acme Corp" id="signup-company">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" placeholder="Create a strong password" id="signup-pw">
+        </div>
+        <button class="auth-submit" onclick="doSignup()">Create Account</button>
+      </div>
+
+      <div class="auth-divider"><span>or continue with</span></div>
+      <button class="social-btn">
+        <svg viewBox="0 0 24 24" style="width:18px;height:18px"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue with Google
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- UPLOAD PAGE -->
+<div class="page" id="page-upload">
+  <div class="upload-page">
+    <h2 class="upload-title">Upload Financial Statement</h2>
+    <p class="upload-sub">Our AI will analyze your financial data to estimate CO₂ emissions</p>
+
+    <div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+      <div class="upload-icon">
+        <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zm-8 2V5h2v6h1.17L12 13.17 9.83 11H11zm-6 7h14v2H5v-2z"/></svg>
+      </div>
+      <h3 id="drop-title">Drop your file here</h3>
+      <p id="drop-sub">or click to browse from your computer</p>
+      <button class="btn-primary" style="pointer-events:none">Select File</button>
+      <div class="file-info">Supports: PDF, Excel, CSV (Max 10MB)</div>
+      <input type="file" id="file-input" accept=".pdf,.xlsx,.xls,.csv" style="display:none" onchange="onFileSelect(event)">
+    </div>
+
+    <div class="upload-steps">
+      <div class="upload-step">
+        <div class="step-badge">Step 1</div>
+        <h4>Upload financial statement</h4>
+        <p>PDF, Excel or CSV with expenditure data</p>
+      </div>
+      <div class="upload-step">
+        <div class="step-badge">Step 2</div>
+        <h4>AI processes expenditure data</h4>
+        <p>NLP extracts categories & correlates emissions</p>
+      </div>
+      <div class="upload-step">
+        <div class="step-badge">Step 3</div>
+        <h4>View CO₂ emissions analysis</h4>
+        <p>Full dashboard with insights & recommendations</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROGRESS OVERLAY -->
+<div class="progress-overlay" id="progress-overlay">
+  <div class="progress-card">
+    <div class="progress-spinner"></div>
+    <div class="progress-title">Analyzing Your Statement</div>
+    <div class="progress-stage" id="prog-stage">Initializing AI models...</div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="prog-bar"></div>
+    </div>
+    <div class="progress-steps">
+      <div class="prog-step"><div class="prog-dot active" id="pdot-0"></div><span id="ptxt-0">Parsing document structure</span></div>
+      <div class="prog-step"><div class="prog-dot" id="pdot-1"></div><span id="ptxt-1">Extracting expenditure categories</span></div>
+      <div class="prog-step"><div class="prog-dot" id="pdot-2"></div><span id="ptxt-2">Correlating emission factors</span></div>
+      <div class="prog-step"><div class="prog-dot" id="pdot-3"></div><span id="ptxt-3">Generating Scope 1/2/3 breakdown</span></div>
+      <div class="prog-step"><div class="prog-dot" id="pdot-4"></div><span id="ptxt-4">Computing reduction recommendations</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD PAGE -->
+<div class="page" id="page-dashboard">
+  <div class="dash-header">
+    <h1>Carbon Emissions Analysis</h1>
+    <p>Financial period: Q2 2026 &bull; Generated by AI/ML</p>
+  </div>
+  <div class="dash-body">
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-label">Total CO₂e <div class="metric-icon" style="background:#ecfdf5"><svg viewBox="0 0 24 24" fill="#059669" style="width:16px;height:16px"><path d="M17 8C8 10 5.9 16.17 3.82 21h1.78l1-2.5A3.87 3.87 0 007 19c5 0 8-3 9-8l3 5 1-2-3-6z"/></svg></div></div>
+        <div class="metric-val">13,700 t</div>
+        <div class="metric-change up">▲ +12% vs Q1</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Total Spending <div class="metric-icon" style="background:#eff6ff"><svg viewBox="0 0 24 24" fill="#0284c7" style="width:16px;height:16px"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg></div></div>
+        <div class="metric-val">$2.7M</div>
+        <div class="metric-change down">▼ -5% vs Q1</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Emission Intensity <div class="metric-icon" style="background:#fff7ed"><svg viewBox="0 0 24 24" fill="#d97706" style="width:16px;height:16px"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6h-6z"/></svg></div></div>
+        <div class="metric-val">5,000</div>
+        <div class="metric-sub">tCO₂e per $M</div>
+      </div>
+      <div class="metric-card highlight">
+        <div class="metric-label">Reduction Potential <div class="metric-icon"><svg viewBox="0 0 24 24" fill="white" style="width:16px;height:16px"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg></div></div>
+        <div class="metric-val">42%</div>
+        <div class="metric-sub">AI-predicted savings</div>
+      </div>
+    </div>
+
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">Emissions by Category</div>
+        <div class="chart-wrap" style="height:280px"><canvas id="barChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Emissions by Scope</div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;font-size:12px;color:#6b7280">
+          <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:#059669;display:inline-block"></span>Scope 1 (30%)</span>
+          <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:#0284c7;display:inline-block"></span>Scope 2 (45%)</span>
+          <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:#34d399;display:inline-block"></span>Scope 3 (25%)</span>
+        </div>
+        <div class="chart-wrap" style="height:240px"><canvas id="pieChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="trend-card">
+      <div class="chart-title">CO₂e vs Spending Trend</div>
+      <div class="trend-legend">
+        <span class="leg-item"><span class="leg-dot" style="background:#059669"></span>CO₂e (tonnes)</span>
+        <span class="leg-item"><span class="leg-dot" style="background:#0284c7"></span>Spending ($)</span>
+      </div>
+      <div style="position:relative;height:240px"><canvas id="lineChart"></canvas></div>
+    </div>
+
+    <div class="table-card">
+      <div class="chart-title">Detailed Category Analysis</div>
+      <table class="data-table">
+        <thead><tr><th>Category</th><th>Spending</th><th>CO₂e (tonnes)</th><th>Intensity</th></tr></thead>
+        <tbody>
+          <tr><td>Energy &amp; Utilities</td><td>$850K</td><td>4,250</td><td>5,000.00</td></tr>
+          <tr><td>Transportation</td><td>$640K</td><td>3,200</td><td>5,000.00</td></tr>
+          <tr><td>Manufacturing</td><td>$560K</td><td>2,800</td><td>5,000.00</td></tr>
+          <tr><td>Office Operations</td><td>$300K</td><td>1,500</td><td>5,000.00</td></tr>
+          <tr><td>Travel</td><td>$220K</td><td>1,100</td><td>5,000.00</td></tr>
+          <tr><td>IT Infrastructure</td><td>$170K</td><td>850</td><td>5,000.00</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- HOTSPOTS PAGE -->
+<div class="page" id="page-hotspots">
+  <div class="hotspot-page">
+    <div class="page-header">
+      <h1>Emission Hotspot Detection</h1>
+      <p>Top emission sources with AI-powered reduction recommendations</p>
+    </div>
+
+    <div class="hotspot-grid">
+      <div>
+        <div class="chart-card" style="margin-bottom:20px">
+          <div class="chart-title">Top Emission Sources</div>
+          <div style="position:relative;height:280px"><canvas id="hotspotChart"></canvas></div>
+        </div>
+      </div>
+      <div class="hotspot-list">
+        <div class="hotspot-item">
+          <div class="hotspot-rank">01</div>
+          <div class="hotspot-info"><h4>Energy &amp; Utilities</h4><p>Electricity, gas, district heating</p></div>
+          <span class="severity critical">Critical</span>
+          <div class="hotspot-co2">4,250 t</div>
+        </div>
+        <div class="hotspot-item">
+          <div class="hotspot-rank">02</div>
+          <div class="hotspot-info"><h4>Transportation</h4><p>Fleet vehicles, logistics</p></div>
+          <span class="severity critical">Critical</span>
+          <div class="hotspot-co2">3,200 t</div>
+        </div>
+        <div class="hotspot-item">
+          <div class="hotspot-rank">03</div>
+          <div class="hotspot-info"><h4>Manufacturing</h4><p>Production processes</p></div>
+          <span class="severity high">High</span>
+          <div class="hotspot-co2">2,800 t</div>
+        </div>
+        <div class="hotspot-item">
+          <div class="hotspot-rank">04</div>
+          <div class="hotspot-info"><h4>Office Operations</h4><p>HVAC, equipment</p></div>
+          <span class="severity high">High</span>
+          <div class="hotspot-co2">1,500 t</div>
+        </div>
+        <div class="hotspot-item">
+          <div class="hotspot-rank">05</div>
+          <div class="hotspot-info"><h4>Business Travel</h4><p>Air, rail, hotel stays</p></div>
+          <span class="severity medium">Medium</span>
+          <div class="hotspot-co2">1,100 t</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="recs-section">
+      <h2 style="font-size:20px;font-weight:800;color:#111827;margin-bottom:16px">AI Reduction Recommendations</h2>
+      <div class="rec-card">
+        <div class="rec-header">
+          <div class="rec-title">⚡ Switch to Renewable Energy Sources</div>
+          <span class="rec-impact high">High Impact</span>
+        </div>
+        <div class="rec-meta">
+          <span>📉 Potential: 1,800 tCO₂e</span>
+          <span>💰 Est. Cost: $120K</span>
+          <span>⏱ Timeline: 12 months</span>
+          <span>💡 ROI: 3.2x</span>
+        </div>
+        <div class="rec-desc">Transition to renewable energy contracts (wind/solar PPAs) for primary facilities. AI analysis shows 42% of energy spend is on peak-rate grid electricity that can be offset with renewable procurement agreements.</div>
+      </div>
+      <div class="rec-card">
+        <div class="rec-header">
+          <div class="rec-title">🚛 Optimize Fleet &amp; Logistics Routes</div>
+          <span class="rec-impact high">High Impact</span>
+        </div>
+        <div class="rec-meta">
+          <span>📉 Potential: 960 tCO₂e</span>
+          <span>💰 Est. Cost: $45K</span>
+          <span>⏱ Timeline: 6 months</span>
+          <span>💡 ROI: 5.1x</span>
+        </div>
+        <div class="rec-desc">Implement AI-powered route optimization for fleet vehicles. Analysis of transportation expenditure shows 30% inefficiency in current routing patterns, especially in last-mile delivery operations.</div>
+      </div>
+      <div class="rec-card">
+        <div class="rec-header">
+          <div class="rec-title">🏭 Modernize Manufacturing Equipment</div>
+          <span class="rec-impact medium">Medium Impact</span>
+        </div>
+        <div class="rec-meta">
+          <span>📉 Potential: 700 tCO₂e</span>
+          <span>💰 Est. Cost: $280K</span>
+          <span>⏱ Timeline: 24 months</span>
+          <span>💡 ROI: 2.1x</span>
+        </div>
+        <div class="rec-desc">Upgrade aging manufacturing equipment to energy-efficient models. ML models identify 3 production lines operating at 40% below optimal efficiency, representing significant emission reduction potential.</div>
+      </div>
+      <div class="rec-card">
+        <div class="rec-header">
+          <div class="rec-title">✈️ Virtual-First Travel Policy</div>
+          <span class="rec-impact medium">Medium Impact</span>
+        </div>
+        <div class="rec-meta">
+          <span>📉 Potential: 440 tCO₂e</span>
+          <span>💰 Est. Cost: $8K</span>
+          <span>⏱ Timeline: 3 months</span>
+          <span>💡 ROI: 8.4x</span>
+        </div>
+        <div class="rec-desc">Implement mandatory virtual-first meeting policy with travel approval workflow. Analysis shows 40% of business travel spend goes to meetings that could be conducted digitally without significant business impact.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPLIANCE PAGE -->
+<div class="page" id="page-compliance">
+  <div class="compliance-page">
+    <div class="page-header">
+      <h1>Compliance Report</h1>
+      <p>Automated regulatory compliance checks against SEBI/EPA emission limits</p>
+    </div>
+
+    <div class="compliance-score">
+      <div class="score-left">
+        <h2>Overall Compliance Status</h2>
+        <p>All major regulatory thresholds checked &bull; Q2 2026</p>
+        <div style="display:flex;gap:12px;margin-top:16px">
+          <span style="background:rgba(255,255,255,0.2);color:#fff;padding:5px 14px;border-radius:999px;font-size:13px;font-weight:600">✓ 7 Passed</span>
+          <span style="background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.9);padding:5px 14px;border-radius:999px;font-size:13px;font-weight:600">! 1 Advisory</span>
+        </div>
+      </div>
+      <div class="score-circle">
+        <div class="score-num">100%</div>
+        <div class="score-label">Compliant</div>
+      </div>
+    </div>
+
+    <button class="download-btn" onclick="showToast('PDF report downloaded successfully!')">
+      <svg viewBox="0 0 24 24" fill="white" style="width:18px;height:18px"><path d="M19 9h-4V3H9v6H5l7 7 7-7zm-8 2V5h2v6h1.17L12 13.17 9.83 11H11zm-6 7h14v2H5v-2z"/></svg>
+      Download Full Report (PDF)
+    </button>
+
+    <div class="compliance-grid">
+      <div class="check-list">
+        <h3 style="font-size:16px;font-weight:700;color:#111827;margin-bottom:14px">Regulatory Checks</h3>
+        <div class="check-item">
+          <div class="check-top"><div class="check-name">SEBI BRSR — Scope 1 Emissions</div><span class="status-badge pass">PASS</span></div>
+          <div class="check-prog-wrap"><div class="check-prog" style="width:72%"></div></div>
+          <div class="check-meta"><span>Current: 4,110 tCO₂e</span><span>Limit: 5,700 tCO₂e · Margin: 28%</span></div>
+        </div>
+        <div class="check-item">
+          <div class="check-top"><div class="check-name">SEBI BRSR — Scope 2 Emissions</div><span class="status-badge pass">PASS</span></div>
+          <div class="check-prog-wrap"><div class="check-prog" style="width:58%"></div></div>
+          <div class="check-meta"><span>Current: 6,165 tCO₂e</span><span>Limit: 10,600 tCO₂e · Margin: 42%</span></div>
+        </div>
+        <div class="check-item">
+          <div class="check-top"><div class="check-name">EPA GHG — Total Annual</div><span class="status-badge pass">PASS</span></div>
+          <div class="check-prog-wrap"><div class="check-prog" style="width:65%"></div></div>
+          <div class="check-meta"><span>Current: 13,700 tCO₂e</span><span>Limit: 21,000 tCO₂e · Margin: 35%</span></div>
+        </div>
+        <div class="check-item">
+          <div class="check-top"><div class="check-name">ISO 14064 — Emission Intensity</div><span class="status-badge pass">PASS</span></div>
+          <div class="check-prog-wrap"><div class="check-prog" style="width:55%"></div></div>
+          <div class="check-meta"><span>Current: 5,000 tCO₂e/$M</span><span>Limit: 9,000 · Margin: 44%</span></div>
+        </div>
+        <div class="check-item">
+          <div class="check-top"><div class="check-name">CDP — Scope 3 Disclosure</div><span class="status-badge pass">PASS</span></div>
+          <div class="check-prog-wrap"><div class="check-prog" style="width:68%"></div></div>
+          <div class="check-meta"><span>Current: 3,425 tCO₂e</span><span>Limit: 5,000 · Margin: 32%</span></div>
+        </div>
+        <div class="check-item">
+          <div class="check-top"><div class="check-name">GHG Protocol — Verification</div><span class="status-badge pass">PASS</span></div>
+          <div class="check-prog-wrap"><div class="check-prog" style="width:88%"></div></div>
+          <div class="check-meta"><span>Accuracy: 98.5%</span><span>Required: 85% · Margin: 13.5%</span></div>
+        </div>
+        <div class="check-item">
+          <div class="check-top"><div class="check-name">TCFD — Financial Risk Disclosure</div><span class="status-badge pass">PASS</span></div>
+          <div class="check-prog-wrap"><div class="check-prog" style="width:92%"></div></div>
+          <div class="check-meta"><span>Score: 92/100</span><span>Required: 75 · Margin: 22%</span></div>
+        </div>
+        <div class="check-item" style="border-color:#fef3c7">
+          <div class="check-top"><div class="check-name">SBTi — Net Zero Trajectory</div><span class="status-badge" style="background:#fffbeb;color:#b45309">ADVISORY</span></div>
+          <div class="check-prog-wrap"><div class="check-prog" style="width:78%;background:linear-gradient(90deg,#f59e0b,#fbbf24)"></div></div>
+          <div class="check-meta"><span>Reduction rate: 7.8% yr</span><span>Target: 10%/yr · Gap: 2.2%</span></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="ai-recs-card">
+          <h3 style="font-size:16px;font-weight:700;color:#111827;margin-bottom:16px">AI Proactive Recommendations</h3>
+          <div class="ai-rec-item">
+            <div class="ai-rec-num">1</div>
+            <div class="ai-rec-text">
+              <h4>Accelerate decarbonization to meet SBTi</h4>
+              <p>Current 7.8% annual reduction rate needs to reach 10% for SBTi compliance. Focus renewable energy contracts and fleet electrification on Q3–Q4.</p>
+            </div>
+          </div>
+          <div class="ai-rec-item">
+            <div class="ai-rec-num">2</div>
+            <div class="ai-rec-text">
+              <h4>Build Scope 1 buffer ahead of stricter SEBI limits</h4>
+              <p>SEBI BRSR thresholds tighten 15% in FY2027. Current 28% margin will shrink. Recommend proactive emission cuts in manufacturing by Q1 2027.</p>
+            </div>
+          </div>
+          <div class="ai-rec-item">
+            <div class="ai-rec-num">3</div>
+            <div class="ai-rec-text">
+              <h4>Submit CDP Climate A-List application</h4>
+              <p>With 100% compliance and strong data quality (98.5% accuracy), your organization meets CDP A-List criteria. Submission deadline: July 2026.</p>
+            </div>
+          </div>
+          <div class="ai-rec-item">
+            <div class="ai-rec-num">4</div>
+            <div class="ai-rec-text">
+              <h4>Expand Scope 3 supply chain tracking</h4>
+              <p>Only 62% of Scope 3 emissions are currently tracked. Engaging top 20 suppliers for emissions data will strengthen CDP score and investor reporting.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV (for logged-in pages) -->
+<div id="bottom-nav" style="display:none">
+  <div class="bottom-nav">
+    <button class="bnav-btn" onclick="showPage('dashboard')" id="bnav-dashboard">Dashboard</button>
+    <button class="bnav-btn" onclick="showPage('upload')" id="bnav-upload">Upload</button>
+    <button class="bnav-btn" onclick="showPage('hotspots')" id="bnav-hotspots">Hotspots</button>
+    <button class="bnav-btn" onclick="showPage('compliance')" id="bnav-compliance">Compliance</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+const appPages = ['dashboard','upload','hotspots','compliance'];
+let chartsInit = false;
+
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  const isApp = appPages.includes(name);
+  document.getElementById('main-nav').style.display = isApp?'flex':'none';
+  document.getElementById('bottom-nav').style.display = isApp?'block':'none';
+  document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active-page'));
+  if(isApp){
+    const b = document.getElementById('bnav-'+name);
+    if(b) b.classList.add('active-page');
+  }
+  if(name==='dashboard' && !chartsInit){ initCharts(); chartsInit=true; }
+  window.scrollTo(0,0);
+}
+
+function switchAuthTab(tab){
+  document.querySelectorAll('.auth-tab').forEach((t,i)=>{
+    t.classList.toggle('active', (tab==='login'&&i===0)||(tab==='signup'&&i===1));
+  });
+  document.getElementById('login-form').style.display = tab==='login'?'block':'none';
+  document.getElementById('signup-form').style.display = tab==='signup'?'block':'none';
+}
+
+function doLogin(){
+  const email = document.getElementById('login-email').value;
+  const pw = document.getElementById('login-pw').value;
+  if(!email||!pw){ showToast('Please fill in all fields'); return; }
+  showToast('Welcome back! Redirecting...');
+  setTimeout(()=>showPage('upload'),1200);
+}
+
+function doSignup(){
+  const name = document.getElementById('signup-name').value;
+  const email = document.getElementById('signup-email').value;
+  if(!name||!email){ showToast('Please fill in all fields'); return; }
+  showToast('Account created! Welcome aboard 🎉');
+  setTimeout(()=>showPage('upload'),1200);
+}
+
+function onDragOver(e){
+  e.preventDefault();
+  document.getElementById('dropzone').classList.add('dragover');
+}
+function onDragLeave(e){
+  document.getElementById('dropzone').classList.remove('dragover');
+}
+function onDrop(e){
+  e.preventDefault();
+  document.getElementById('dropzone').classList.remove('dragover');
+  const files = e.dataTransfer.files;
+  if(files.length) handleFile(files[0]);
+}
+function onFileSelect(e){
+  if(e.target.files.length) handleFile(e.target.files[0]);
+}
+function handleFile(file){
+  const ext = file.name.split('.').pop().toLowerCase();
+  if(!['pdf','xlsx','xls','csv'].includes(ext)){
+    showToast('Please upload PDF, Excel, or CSV files only');
+    return;
+  }
+  if(file.size > 10*1024*1024){
+    showToast('File size must be under 10MB');
+    return;
+  }
+  document.getElementById('drop-title').textContent = file.name;
+  document.getElementById('drop-sub').textContent = (file.size/1024).toFixed(1)+' KB · '+ext.toUpperCase();
+  document.getElementById('dropzone').classList.add('has-file');
+  setTimeout(()=>startProcessing(), 600);
+}
+
+function startProcessing(){
+  const overlay = document.getElementById('progress-overlay');
+  overlay.classList.add('show');
+  const stages = [
+    {pct:20, stage:'Parsing document structure...', dot:0},
+    {pct:40, stage:'Extracting expenditure categories...', dot:1},
+    {pct:60, stage:'Correlating emission factors...', dot:2},
+    {pct:80, stage:'Generating Scope 1/2/3 breakdown...', dot:3},
+    {pct:95, stage:'Computing recommendations...', dot:4},
+    {pct:100, stage:'Analysis complete!', dot:4},
+  ];
+  let i=0;
+  const bar = document.getElementById('prog-bar');
+  const stageEl = document.getElementById('prog-stage');
+  function next(){
+    if(i>=stages.length){ 
+      setTimeout(()=>{ overlay.classList.remove('show'); showPage('dashboard'); },700);
+      return;
+    }
+    const s = stages[i];
+    bar.style.width = s.pct+'%';
+    stageEl.textContent = s.stage;
+    for(let d=0;d<s.dot;d++){
+      document.getElementById('pdot-'+d).className='prog-dot done';
+    }
+    document.getElementById('pdot-'+s.dot).className='prog-dot active';
+    i++;
+    setTimeout(next, 900);
+  }
+  next();
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+function initCharts(){
+  // Bar Chart
+  new Chart(document.getElementById('barChart'),{
+    type:'bar',
+    data:{
+      labels:['Energy &\nUtilities','Transportation','Manufacturing','Office\nOps','Travel','IT Infra'],
+      datasets:[{
+        label:'CO₂e (tonnes)',
+        data:[4250,3200,2800,1500,1100,850],
+        backgroundColor:['#059669','#0ea5e9','#34d399','#0284c7','#6ee7b7','#93c5fd'],
+        borderRadius:6,
+        borderSkipped:false
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>'CO₂e: '+ctx.raw.toLocaleString()+' t'}}},
+      scales:{x:{grid:{display:false},ticks:{font:{size:11}}},y:{grid:{color:'#f0fdf4'},ticks:{font:{size:11}}}}
+    }
+  });
+
+  // Pie Chart
+  new Chart(document.getElementById('pieChart'),{
+    type:'doughnut',
+    data:{
+      labels:['Scope 1','Scope 2','Scope 3'],
+      datasets:[{data:[30,45,25],backgroundColor:['#059669','#0284c7','#34d399'],borderWidth:0,hoverOffset:8}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'55%'}
+  });
+
+  // Line Chart
+  new Chart(document.getElementById('lineChart'),{
+    type:'line',
+    data:{
+      labels:['Jan','Feb','Mar','Apr','May','Jun'],
+      datasets:[
+        {label:'CO₂e (tonnes)',data:[11200,12800,13500,14100,13900,13700],borderColor:'#059669',backgroundColor:'rgba(5,150,105,0.08)',tension:.4,pointBackgroundColor:'#059669',pointRadius:5,yAxisID:'y'},
+        {label:'Spending ($)',data:[2100000,2350000,2600000,2750000,2700000,2700000],borderColor:'#0284c7',backgroundColor:'rgba(2,132,199,0.05)',tension:.4,pointBackgroundColor:'#0284c7',pointRadius:5,yAxisID:'y1'}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{display:false}},
+        y:{grid:{color:'#f0fdf4'},ticks:{font:{size:11}}},
+        y1:{position:'right',grid:{display:false},ticks:{callback:v=>'$'+(v/1000000).toFixed(1)+'M',font:{size:11}}}
+      }
+    }
+  });
+
+  // Hotspot Chart
+  if(document.getElementById('hotspotChart')){
+    new Chart(document.getElementById('hotspotChart'),{
+      type:'bar',
+      data:{
+        labels:['Energy & Utilities','Transportation','Manufacturing','Office Ops','Travel','IT Infra'],
+        datasets:[{
+          label:'CO₂e (t)',
+          data:[4250,3200,2800,1500,1100,850],
+          backgroundColor:['#dc2626','#dc2626','#d97706','#d97706','#ca8a04','#059669'],
+          borderRadius:6,borderSkipped:false
+        }]
+      },
+      options:{
+        indexAxis:'y',responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{x:{grid:{color:'#f0fdf4'}},y:{grid:{display:false}}}
+      }
+    });
+  }
+}
+</script>
+</body>
+</html>
